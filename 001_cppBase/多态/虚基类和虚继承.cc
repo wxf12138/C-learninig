@@ -62,22 +62,22 @@ linux:
 int main()
 {
   // 基类指针指向派生类对象，永远指向的是派生类基类部分数据的起始地址
-  //堆
-//   A *p = new B();
-//   cout << "main p :" << p << endl;
-//   p->func();
-// cout << "Address of B object: " << (void *)p << endl;
-// cout << "Address of A subobject inside B: " << (A *)p << endl;
-
-//   delete p;
-
-//   cout << sizeof(A) << endl;
-//   cout << sizeof(B) << endl;
-
-  //栈
-  B b;
-  A *p = &b;
+  // 堆
+  A *p = new B();
   cout << "main p :" << p << endl;
   p->func();
+  cout << "Address of B object: " << (void *)p << endl;
+  cout << "Address of A subobject inside B: " << (A *)p << endl;
+
+  delete p;
+
+  cout << sizeof(A) << endl;
+  cout << sizeof(B) << endl;
+
+  // 栈
+  // B b;
+  // A *p = &b;
+  // cout << "main p :" << p << endl;
+  // p->func();
   return 0;
 }
