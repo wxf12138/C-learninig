@@ -16,8 +16,8 @@ public:
     {
         if (p == nullptr)
         {
-            _len = 0;
-            _str = nullptr;
+            _str = new char[1];
+            *_str = '\0';
         }
         else
         {
@@ -37,7 +37,7 @@ public:
         strcpy(_str, str._str);
     }
 
-    String &operator=(const String &str)
+    String &operator=(const String &str) // 返回值是类引用，方便链式编程 = =
     {
         if (this == &str)
         {
@@ -109,7 +109,7 @@ int main()
     }
 
     // c++11
-    for(char ch : str1)
+    for (char ch : str1)
     {
         cout << ch << " ";
     }

@@ -7,7 +7,7 @@ struct Allocator
     T *allocate(size_t size)
     {
         cout << "allocate" << endl;
-        return (T *)malloc(size * sizeof(T)); // 内存开辟
+        return (T *)malloc(size * sizeof(T)); // 内存开辟(大小等于vector的size)
     }
 
     void deallocate(T *p)
@@ -18,14 +18,14 @@ struct Allocator
 
     void construct(T *p, const T &value) // 负责对象构造
     {
-        cout << "construct" << endl; // 定位new
-        new (p) T(value);
+        cout << "construct" << endl;
+        new (p) T(value); // 定位new
     }
 
     void destroy(T *p)
     {
         cout << "destroy" << endl; // 负责对象析构
-        p->~T();
+        p->~T();                   // 只调用了T的析构函数
     }
 };
 
@@ -60,7 +60,7 @@ public:
         int len = rhs.__last - rhs.__first;
         for (int i = 0; i < len; ++i)
         {
-            __alloc.construct(__first + i, rhs.__first[i]); // 在堆上构造对象
+            __alloc.construct(__first + i, rhs.__first[i]); // 通过定位new在堆上构造对象
         }
         __last = __first + len;
         __end = __first + size;
@@ -91,7 +91,7 @@ public:
         return *this;
     }
 
-    void push_back(const T &val)
+    void push_back(const T &val) // 向容器末尾添加元素
     {
         if (full())
             expand();
@@ -99,7 +99,7 @@ public:
         __alloc.construct(__last++, val); // 在_last指针指向的内存构造一个值为val的对象
         cout << "push_back_construct" << endl;
     }
-    void pop_back()
+    void pop_back() // 从容器末尾删除元素
     {
         if (empty())
             return;
@@ -108,7 +108,7 @@ public:
         __alloc.destroy(__last); // 指针--  再析构
     }
 
-    T back() const
+    T back() const // 返回末尾容器元素
     {
         return *(__last - 1);
     }
@@ -219,12 +219,12 @@ public:
         */
         verify(it._p - 1, __last);
         T *p = __last;
-        while (p > it._p)//使插入元素后的所有元素后移一位
+        while (p > it._p) // 使插入元素后的所有元素后移一位
         {
             __alloc.construct(p, *(p - 1)); // 构造新对象 在p指向的新位置上构造原p-1的值
-            cout << "insert_construct p:" << p << " "<< *p << endl;
+            cout << "insert_construct p:" << p << " " << *p << endl;
             __alloc.destroy(p - 1); // 析构旧对象
-            cout << "insert_destroy p:" << p  << " "<< *(p-1) << endl;
+            cout << "insert_destroy p:" << p << " " << *(p - 1) << endl;
             p--;
         }
         __alloc.construct(p, val);
@@ -242,7 +242,7 @@ public:
             __alloc.destroy(p);
             cout << "erase_destroy" << *p << " " << p << endl;
             __alloc.construct(p, *(p + 1));
-            cout << "construct" << *(p+1) << " " << p << endl;//原来的位置前移
+            cout << "construct" << *(p + 1) << " " << p << endl; // 原来的位置前移
             p++;
         }
         __alloc.destroy(p);
@@ -314,62 +314,63 @@ public:
 
 int main()
 {
-    /*   vector<int> v;
-      for (int i = 0; i < 10; i++)
-      {
-          v.push_back(i);
+/*   vector<int> v;
+  for (int i = 0; i < 10; i++)
+  {
+      v.push_back(i);
 
-      }
+  }
 
+  v.pop_back();
+
+  while (!v.empty())
+  {
+      cout << v.back() << " ";
       v.pop_back();
+  } */
+// 空间配置器
+/*  vector<Test> v;
+cout << "---------------------------" << endl;
+Test t1, t2, t3;
+cout << "---------------------------" << endl;
 
-      while (!v.empty())
-      {
-          cout << v.back() << " ";
-          v.pop_back();
-      } */
-    // 空间配置器
-    /*  vector<Test> v;
-   cout << "---------------------------" << endl;
-   Test t1, t2, t3;
-   cout << "---------------------------" << endl;
+v.push_back(t1);
+v.push_back(t2);
+v.push_back(t3);
 
-   v.push_back(t1);
-   v.push_back(t2);
-   v.push_back(t3);
+cout << "---------------------------" << endl;
+v.pop_back();
+cout << "---------------------------" << endl;
+return 0; */
 
-   cout << "---------------------------" << endl;
-   v.pop_back();
-   cout << "---------------------------" << endl;
-   return 0; */
+// 迭代器
+/*  vector<int> v;
+for (int i = 0; i < 10; i++)
+{
+   v.push_back(i);
+}
+auto it = v.begin();
+for (; it != v.end(); ++it)
+{
+   cout << *it << " ";
+}
+cout << endl;
 
-    // 迭代器
-    /*  vector<int> v;
-   for (int i = 0; i < 10; i++)
-   {
-       v.push_back(i);
-   }
-   auto it = v.begin();
-   for (; it != v.end(); ++it)
-   {
-       cout << *it << " ";
-   }
-   cout << endl;
+int size = v.size();
+for (int i = 0; i < size; ++i)
+{
+   cout << v[i] << " ";
+}
+cout << endl;
 
-   int size = v.size();
-   for (int i = 0; i < size; ++i)
-   {
-       cout << v[i] << " ";
-   }
-   cout << endl;
+for (int val : v)
+{
+   cout << val << " ";
+}
+cout << endl; */
 
-   for (int val : v)
-   {
-       cout << val << " ";
-   }
-   cout << endl; */
-
-    // 迭代器失效问题
+// 迭代器失效问题
+#if 0
     vector<int> vec(200); // 当insert扩容后，原来的it会失效，但代码仍然试图运行
     for (int i = 0; i < 6; ++i)
     {
@@ -426,6 +427,12 @@ int main()
     for (int v : vec)
         cout << v << " ";
     cout << endl; */
-
+#endif
+    // 扩容实例
+    vector<int> v;
+    for (int i = 0; i < 10; i++)
+    {
+        v.push_back(i);
+    }
     return 0;
 }
