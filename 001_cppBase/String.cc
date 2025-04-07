@@ -52,7 +52,7 @@ public:
         }
     }
 
-    String operator+(const String &str)
+    String &operator+(const String &str)
     {
         String temp;
         temp._len = _len + str._len;
