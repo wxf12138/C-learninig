@@ -4,9 +4,9 @@ using namespace std;
 // 节点类型
 struct Node
 {
-    Node() : data_(0), next_(nullptr) {}
+    Node(int data = 0) :data_(data), next_(nullptr) {}
     int data_;
-    Node *next_;
+    Node* next_;
 };
 
 class Clink
@@ -119,87 +119,48 @@ private:
     Node *head_;
 };
 
-// 单链表逆序
-void reverse(Clink &link)
+bool IsLinkHasCircle(Node *head, int &val)
 {
-    Node *head = link.head_;
-    Node *p = head->next_;
-    if (p == nullptr)
+    Node *fast = head;
+    Node *slow = head;
+
+    while (fast != nullptr && fast->next_ != nullptr)
     {
-        return;
-    }
+        slow = slow->next_;
+        fast = fast->next_->next_;
 
-    head->next_ = nullptr;
-
-    while (p != nullptr)
-    {
-        Node *q = p->next_; // 保存p的下一个节点
-
-        // p指针指向的节点进行头插
-        p->next_ = head->next_;
-        head->next_ = p;
-
-        p = q;
-    }
-}
-
-void MergeLink(Clink &clink1, Clink &clink2)
-{
-    Node *head1 = clink1.head_->next_;
-    Node *head2 = clink2.head_->next_;
-    Node *last = clink1.head_; // 合并后的链表的尾节点
-
-    while (head1 != nullptr && head2 != nullptr)
-    {
-        if (head1->data_ < head2->data_)
+        if (slow == fast)
         {
-            // 将 head1 的当前节点连接到合并链表
-            last->next_ = head1;
-            head1 = head1->next_;
-        }
-        else
-        {
-            // 将 head2 的当前节点连接到合并链表
-            last->next_ = head2;
-            head2 = head2->next_;
-        }
-        last = last->next_;
-        last->next_ = nullptr; // 断开旧连接
-    }
+            // 快慢指针相遇，存在环
+            fast = head;
+            while (fast != slow)
+            {
+                slow = slow->next_;
+                fast = fast->next_;
+            }
+            val = fast->data_;
 
-    // 处理剩余节点
-    if (head1 != nullptr)
-    {
-        last->next_ = head1;
+            // 存在环
+            return true;
+        }
     }
-    else
-    {
-        last->next_ = head2;
-    }
-
-    // 清空 clink2 的头结点（避免重复释放）
-    clink2.head_->next_ = nullptr;
+    return false;
 }
 
 int main()
 {
-    /*
-    free(): double free detected in tcache 2
-    Aborted (core dumped)
-    */
-// 合并链表
-    int arr1[] = {1, 3, 5, 7, 9};
-    int arr2[] = {2, 4, 6, 8, 10};
-    Clink clink1, clink2;
-    for (int i = 0; i < sizeof(arr1) / sizeof(int); i++)
-    {
-        clink1.insertTail(arr1[i]);
-    }
-    for (int i = 0; i < sizeof(arr2) / sizeof(int); i++)
-    {
-        clink2.insertTail(arr2[i]);
-    }
+    Node head;
 
-    MergeLink(clink1, clink2);
-    clink1.print();
+    Node n1(25), n2(67), n3(32), n4(18);
+    head.next_ = &n1;
+    n1.next_ = &n2;
+    n2.next_ = &n3;
+    n3.next_ = &n4;
+    n4.next_ = &n4;
+
+    int val;
+    if (IsLinkHasCircle(&head, val))
+    {
+        cout << "链表存在环，环的入口节点是：" << val << endl;
+    }
 }

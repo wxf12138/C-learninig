@@ -4,11 +4,10 @@ using namespace std;
 // 节点类型
 struct Node
 {
-    Node() : data_(0), next_(nullptr) {}
+    Node(int data = 0) : data_(data), next_(nullptr) {}
     int data_;
     Node *next_;
 };
-
 class Clink
 {
 public:
@@ -114,6 +113,7 @@ public:
     }
 
 private:
+    friend int GetLaskKNode(Clink& link, int k, int &val);
     friend void reverse(Clink &clink);
     friend void MergeLink(Clink &clink1, Clink &clink2);
     Node *head_;
@@ -143,63 +143,42 @@ void reverse(Clink &link)
     }
 }
 
-void MergeLink(Clink &clink1, Clink &clink2)
+int GetLaskKNode(Clink& link, int k, int &val)
 {
-    Node *head1 = clink1.head_->next_;
-    Node *head2 = clink2.head_->next_;
-    Node *last = clink1.head_; // 合并后的链表的尾节点
+    Node *p = link.head_->next_;
+    Node *q = link.head_->next_;
 
-    while (head1 != nullptr && head2 != nullptr)
+    while (k--)
     {
-        if (head1->data_ < head2->data_)
-        {
-            // 将 head1 的当前节点连接到合并链表
-            last->next_ = head1;
-            head1 = head1->next_;
-        }
-        else
-        {
-            // 将 head2 的当前节点连接到合并链表
-            last->next_ = head2;
-            head2 = head2->next_;
-        }
-        last = last->next_;
-        last->next_ = nullptr; // 断开旧连接
+        q = q->next_;
     }
 
-    // 处理剩余节点
-    if (head1 != nullptr)
+    while (q != nullptr)
     {
-        last->next_ = head1;
+        p = p->next_;
+        q = q->next_;
     }
-    else
-    {
-        last->next_ = head2;
-    }
-
-    // 清空 clink2 的头结点（避免重复释放）
-    clink2.head_->next_ = nullptr;
+    val = p->data_;
+    return val;
 }
-
 int main()
 {
-    /*
-    free(): double free detected in tcache 2
-    Aborted (core dumped)
-    */
-// 合并链表
-    int arr1[] = {1, 3, 5, 7, 9};
-    int arr2[] = {2, 4, 6, 8, 10};
-    Clink clink1, clink2;
-    for (int i = 0; i < sizeof(arr1) / sizeof(int); i++)
+    Clink link;
+    srand(time(0));
+    for (int i = 0; i < 10; i++)
     {
-        clink1.insertTail(arr1[i]);
+        int val = rand() % 100;
+        link.insertTail(val);
     }
-    for (int i = 0; i < sizeof(arr2) / sizeof(int); i++)
-    {
-        clink2.insertTail(arr2[i]);
-    }
+    link.print();
 
-    MergeLink(clink1, clink2);
-    clink1.print();
+    reverse(link);
+    link.print();
+
+    int kval;
+    int k = 2;
+    if (GetLaskKNode(link, k, kval))
+    {
+        cout << "倒数第" << k << "个节点的值:" << kval << endl;
+    }
 }
