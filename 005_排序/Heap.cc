@@ -7,7 +7,7 @@ using namespace std;
 void siftdown(int arr[], int i, int size)
 {
     int val = arr[i];
-	while (i < size / 2)
+	while (i < size / 2) //从第一个非叶子节下沉
 	{
 		int child = 2 * i + 1;
 		if (child + 1 < size && arr[child + 1] > arr[child])
@@ -17,7 +17,7 @@ void siftdown(int arr[], int i, int size)
 
 		if (arr[child] > val)
 		{
-			arr[i] = arr[child];
+			arr[i] = arr[child]; // arr[i] 下沉
 			i = child;  // i继续指向它的孩子，继续调整
 		}
 		else
@@ -30,7 +30,7 @@ void siftdown(int arr[], int i, int size)
 void HeapSort(int arr[], int size)
 {
     int n = size - 1;
-        // 第一个非叶子节点
+        // 第一个非叶子节点开始， 把二叉堆调整成一个大根堆
     for (int i = (n - 1) / 2; i >= 0; i--)
     {
         siftdown(arr, i, size);
