@@ -62,6 +62,7 @@ public:
     void erase(int key)
     {
         int idx = key % table_.size();
+        // 如果散列结果比较离散，链表长度不会过长
         auto it = ::find(table_[idx].begin(), table_[idx].end(), key);  // O(n)
         if (it != table_[idx].end())
 			{
@@ -121,7 +122,7 @@ int HashTable::primes_[PRIME_SIZE] = { 3, 7, 23, 47, 97, 251, 443, 911, 1471, 42
 
 int main()
 {
-    HashTable htable;
+    HashTable htable;   
 	htable.insert(21);
 	htable.insert(32);
 	htable.insert(14);

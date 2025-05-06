@@ -33,7 +33,7 @@ void QuickSort(int array[], int left, int right)
     }
     // 优化一：当[begin, end]序列的元素个数小到指定数量，采用插入排序
     // if (end - begin <= 50)
-    //{
+    //{ 
     // InsertSort(arr, begin, end);
     // return;
     //}
