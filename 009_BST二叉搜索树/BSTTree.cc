@@ -50,6 +50,23 @@ public:
         }
     }
 
+    // 递归插入操作用户接口
+    void insert(const T &val)
+    {
+        root_ = insert(root_, val);
+    }
+
+    // 递归查询操作用户接口
+    bool query(const T &val)
+    {
+        return nullptr != query(root_, val);
+    }
+
+    void remove(const T &val)
+    {
+        root_ = remove(root_, val);
+    }
+    // 非递归删除
     void n_delete(const T &val)
     {
         if (root_ == nullptr)
@@ -122,6 +139,7 @@ public:
         delete cur;
     }
 
+    // 非递归查询
     bool non_query(const T &val)
     {
         Node *cur = root_;
@@ -236,7 +254,7 @@ private:
         return left > right ? left + 1 : right + 1; 
     }
 
-    // 求树的节点数
+    // 求树的节点数实现接口
     int number(Node* node)
     {
         if (node == nullptr)   
@@ -259,6 +277,102 @@ private:
         levelOrder(node->left_, i - 1);
         levelOrder(node->right_, i - 1);
     }
+
+    // 递归插入实现接口
+    Node* insert(Node* node, const T &val)
+    {
+        if(node == nullptr)
+        {
+            // 递归结束，找到val的位置，生成新节点并返回其节点
+            return new Node(val);
+        }
+        if (node->data_ == val)
+        {
+            return node;
+        }
+        else if(comp(node->data_, val))
+        {
+            node->right_ = insert(node->right_, val);
+            return node;
+        }
+        else
+        {
+            node->left_ = insert(node->left_, val);
+            return node;
+        }
+    }
+
+    // 递归查询功能的实现
+    Node* query(Node* node, int val)
+    {
+        if (node == nullptr)
+            return nullptr;
+        if (node->data_ == val)
+        {
+            return node;
+        }
+        else if (comp(node->data_, val))
+        {
+            node->right_ = query(node->right_, val);
+        }
+        else
+        {
+            node->left_ = query(node->left_, val);
+        }
+    }
+
+    // 递归删除操作的实现
+    Node* remove(Node *node, const T &val)
+    {
+        if (node == nullptr)
+            return nullptr;
+        if (node->data_ == val)
+        {
+            // 要删除节点有两个孩子
+            if (node->left_ != nullptr && node->right_ != nullptr) 
+            {
+                // 找前驱节点
+                Node* pre = node->left_;
+                while (pre->right_ != nullptr)
+                {
+                    pre = pre->right_;
+                }
+                node->data_ = pre->data_;
+                // 通过递归直接删除前驱节点
+                node->left_ = remove(node->left_, pre->data_);
+            }
+            else // 要删除节点有一个孩子
+            {
+                if (node->left_ != nullptr)
+                {
+                    Node* left = node->left_;
+                    delete node;
+                    return left;
+                }
+                else if (node->right_ != nullptr)
+                {
+                    Node* right = node->right_;
+                    delete node;
+                    return right;
+                }
+                else // 没孩子
+                {
+                    delete node;
+                    return nullptr;
+                }
+            }
+        }
+        else if (comp(node->data_, val))
+        {
+            node->right_ = remove(node->right_, val);
+        }
+        else
+        {
+            node->left_ = remove(node->left_, val);
+        }
+        return node; // 把当前节点返回给父节点， 更新父节点相应的地址域
+    }
+    
     Node *root_;
     Comp comp;
 };
@@ -269,11 +383,14 @@ int main()
     BSTTree<int> bst;
     for (int v : arr)
     {
-        bst.n_insert(v);
+        bst.insert(v);
     }
 
 //    cout <<  bst.non_query(58) << endl;
 //    cout <<  bst.non_query(27) << endl;
+
+    cout << bst.query(58) << endl;
+    bst.remove(34);
 
     bst.preOrder();
     bst.inOrder();
