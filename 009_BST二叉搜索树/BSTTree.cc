@@ -417,6 +417,37 @@ public:
 			return true;
 		return mirror02(root_->left_, root_->right_);
 	}
+
+    // 重建二叉树
+    void rebuild(int pre[], int i, int j, int in[], int m, int n)
+    {
+        root_ = _rebuild(pre, i, j, in, m, n);
+    }
+
+    // 判断平衡树
+	bool isBalance()
+	{
+		int l = 0;
+		bool flag = true;
+		isBalance02(root_, l, flag);
+		return flag;
+	}
+
+    // 求中序倒数第K个节点
+	int getVal(int k)
+	{
+		Node* node = getVal(root_, k);
+		if (node == nullptr)
+		{
+			string err = "no No.";
+			err += k;
+			throw err;
+		}
+		else
+		{
+			return node->data_;
+		}
+	}
 public:
     struct Node
     {
@@ -723,6 +754,69 @@ public:
 		return mirror02(node1->left_, node2->right_)
 			&& mirror02(node1->right_, node2->left_);
 	}
+
+    Node* _rebuild(int pre[], int i, int j, int in[], int m, int n)
+    {
+        if(i > j || m > n )
+        {
+            return nullptr;
+        }
+
+        // 创建当前子树的根节点
+        Node* node = new Node(pre[i]);
+        for(int k = m; k <= n; ++k)
+        {
+            if (pre[i] = in[k])
+            {
+                node->left_ = _rebuild(pre, i + 1, i + k - m, in, m, k - 1);
+                node->right_ = _rebuild(pre, i + (k - m) + 1, j, in, k + 1, n); // R
+				return node;
+            }
+        }
+        return node;
+    }
+
+    // 判断平衡树 效率高 递归过程中，记录了节点的高度值  返回节点高度值
+	int isBalance02(Node* node, int l, bool& flag)
+	{
+		if (node == nullptr)
+		{
+			return l;
+		}
+
+		int left = isBalance02(node->left_, l + 1, flag); // L
+		if (!flag)
+			return left;
+		int right = isBalance02(node->right_, l + 1, flag); // R
+		if (!flag)
+			return right;
+
+		// V
+		if (abs(left - right) > 1) // 节点失衡了
+		{
+			flag = false;
+		}
+		return max(left, right);
+	}
+
+    // 求中序倒数第K个节点
+	int i = 1;
+	Node* getVal(Node* node, int k)
+	{
+		if (node == nullptr)
+			return nullptr;
+
+		Node* left = getVal(node->right_, k); // R
+		if (left != nullptr)
+			return left;
+		// V
+		if (i++ == k) // 在VRL的顺序下，找到正数第k个元素
+		{
+			return node;
+		}
+		return getVal(node->left_, k); // L
+	}
+
     Node *root_;
     Comp comp;
 };
@@ -801,9 +895,18 @@ void test04() // 测试镜像对称
 	cout << bst.mirror02() << endl;
 }
 
+void test05() // 测试重建二叉树
+{
+	BSTTree<int> bst;
+	int pre[] = { 58,24,0,5,34,41,67,62,64,69,78 };
+	int in[] = { 0,5,24,34,41,58,62,64,67,69,78 };
+	bst.rebuild(pre, 0, 10, in, 0, 10);
+	bst.preOrder();
+	bst.inOrder();
+}
 int main()
 {
-    test04();
+    test05();
     // using Elm = pair<int, string>;
     // using Functor = function<bool(Elm, Elm)>;
     // BSTTree<Elm, Functor> bst([](Elm p1, Elm p2)->bool{
